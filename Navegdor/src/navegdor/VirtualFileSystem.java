@@ -7,7 +7,7 @@ public class VirtualFileSystem {
     private final VirtualNode root;
 
     public VirtualFileSystem() {
-        root = new VirtualNode("enequi", true, 0, time(2022, 3, 1));
+        root = new VirtualNode("Usuario", true, 0, time(2022, 3, 1));
         buildTree();
     }
 

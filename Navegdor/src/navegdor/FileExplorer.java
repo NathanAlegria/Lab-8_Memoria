@@ -283,37 +283,86 @@ public class FileExplorer extends JFrame {
     }
 
     private void organizeFolder() {
-        Map<String, String[]> rules = new LinkedHashMap<>();
-        rules.put("Imagenes",   new String[]{".jpg",".jpeg",".png",".gif",".bmp",".svg",".webp"});
-        rules.put("Documentos", new String[]{".pdf",".docx",".doc",".txt",".xlsx",".pptx",".odt"});
-        rules.put("Musica",     new String[]{".mp3",".wav",".flac",".aac",".ogg",".wma"});
-        rules.put("Videos",     new String[]{".mp4",".avi",".mkv",".mov",".wmv"});
-        rules.put("Codigo",     new String[]{".java",".py",".js",".html",".css",".cpp",".c"});
+        Map<String, String> typeRules = new LinkedHashMap<>();
+        typeRules.put(".jpg",  "Imagenes");
+        typeRules.put(".jpeg", "Imagenes");
+        typeRules.put(".png",  "Imagenes");
+        typeRules.put(".gif",  "Imagenes");
+        typeRules.put(".bmp",  "Imagenes");
+        typeRules.put(".svg",  "Imagenes");
+        typeRules.put(".webp", "Imagenes");
+        typeRules.put(".pdf",  "Documentos");
+        typeRules.put(".docx", "Documentos");
+        typeRules.put(".doc",  "Documentos");
+        typeRules.put(".txt",  "Documentos");
+        typeRules.put(".xlsx", "Documentos");
+        typeRules.put(".pptx", "Documentos");
+        typeRules.put(".odt",  "Documentos");
+        typeRules.put(".mp3",  "Musica");
+        typeRules.put(".wav",  "Musica");
+        typeRules.put(".flac", "Musica");
+        typeRules.put(".aac",  "Musica");
+        typeRules.put(".ogg",  "Musica");
+        typeRules.put(".wma",  "Musica");
+        typeRules.put(".mp4",  "Videos");
+        typeRules.put(".avi",  "Videos");
+        typeRules.put(".mkv",  "Videos");
+        typeRules.put(".mov",  "Videos");
+        typeRules.put(".java", "Codigo");
+        typeRules.put(".py",   "Codigo");
+        typeRules.put(".js",   "Codigo");
+        typeRules.put(".html", "Codigo");
+        typeRules.put(".css",  "Codigo");
+
         java.util.List<VirtualNode> files = new ArrayList<>();
         for (VirtualNode child : new ArrayList<>(currentNode.getChildren())) {
             if (!child.isDirectory()) files.add(child);
         }
+
+        String currentName = currentNode.getName().toLowerCase();
+        boolean alreadyInTypeFolder = currentName.equals("imagenes") ||
+                                      currentName.equals("documentos") ||
+                                      currentName.equals("musica") ||
+                                      currentName.equals("videos") ||
+                                      currentName.equals("codigo");
+
         int moved = 0;
         for (VirtualNode file : files) {
             String ext = getExtension(file.getName()).toLowerCase();
-            for (Map.Entry<String, String[]> entry : rules.entrySet()) {
-                for (String e : entry.getValue()) {
-                    if (ext.equals(e)) {
-                        VirtualNode folder = currentNode.getChildDir(entry.getKey());
-                        if (folder == null) {
-                            folder = new VirtualNode(entry.getKey(), true, 0, System.currentTimeMillis());
-                            folder.setParent(currentNode);
-                            currentNode.addChild(folder);
-                        }
-                        currentNode.removeChild(file);
-                        file.setParent(folder);
-                        folder.addChild(file);
-                        moved++;
-                        break;
-                    }
+            String parentFolderName = typeRules.get(ext);
+            if (parentFolderName == null) continue;
+
+            String subFolderName = ext.substring(1).toLowerCase();
+
+            VirtualNode destFolder;
+            if (alreadyInTypeFolder) {
+                destFolder = currentNode.getChildDir(subFolderName);
+                if (destFolder == null) {
+                    destFolder = new VirtualNode(subFolderName, true, 0, System.currentTimeMillis());
+                    destFolder.setParent(currentNode);
+                    currentNode.addChild(destFolder);
+                }
+            } else {
+                VirtualNode parentFolder = currentNode.getChildDir(parentFolderName);
+                if (parentFolder == null) {
+                    parentFolder = new VirtualNode(parentFolderName, true, 0, System.currentTimeMillis());
+                    parentFolder.setParent(currentNode);
+                    currentNode.addChild(parentFolder);
+                }
+                destFolder = parentFolder.getChildDir(subFolderName);
+                if (destFolder == null) {
+                    destFolder = new VirtualNode(subFolderName, true, 0, System.currentTimeMillis());
+                    destFolder.setParent(parentFolder);
+                    parentFolder.addChild(destFolder);
                 }
             }
+
+            currentNode.removeChild(file);
+            file.setParent(destFolder);
+            destFolder.addChild(file);
+            moved++;
         }
+
         refreshTable();
         syncTree(currentNode);
         JOptionPane.showMessageDialog(this, moved + " archivo(s) organizados.", "Organizar", JOptionPane.INFORMATION_MESSAGE);
