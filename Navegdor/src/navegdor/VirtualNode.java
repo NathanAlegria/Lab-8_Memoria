@@ -30,21 +30,19 @@ public class VirtualNode {
     public String getName() {
         return name;
     }
-    
+
     public VirtualNode getParent() {
         return parent;
     }
-    
-    
+
     public long getSize() {
         return size;
     }
-    
+
     public List<VirtualNode> getChildren() {
         return children;
     }
-    
-    
+
     public long getLastModified() {
         return lastModified;
     }
@@ -57,16 +55,13 @@ public class VirtualNode {
         return directory;
     }
 
-
     public void setLastModified(long t) {
         this.lastModified = t;
     }
 
-
     public void setParent(VirtualNode p) {
         this.parent = p;
     }
-
 
     public void setChildren(List<VirtualNode> c) {
         this.children = c;
@@ -94,4 +89,27 @@ public class VirtualNode {
         this.size = s;
     }
 
+    public VirtualNode getChildDir(String dirName) {
+        for (VirtualNode c : children) {
+            if (c.isDirectory() && c.getName().equalsIgnoreCase(dirName)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+    
+    public VirtualNode deepCopy() {
+        VirtualNode copy = new VirtualNode(name, directory, size, lastModified);
+        for (VirtualNode child : children) {
+            VirtualNode childCopy = child.deepCopy();
+            childCopy.setParent(copy);
+            copy.children.add(childCopy);
+        }
+        return copy;
+    }
 }
