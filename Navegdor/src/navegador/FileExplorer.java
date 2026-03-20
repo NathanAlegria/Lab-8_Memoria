@@ -1,4 +1,4 @@
-package navegdor;
+package navegador;
 
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
+import navegdor.FileTableModel;
 
 public class FileExplorer extends JFrame {
 

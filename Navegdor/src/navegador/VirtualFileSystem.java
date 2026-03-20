@@ -1,4 +1,4 @@
-package navegdor;
+package navegador;
 
 import java.util.Calendar;
 
