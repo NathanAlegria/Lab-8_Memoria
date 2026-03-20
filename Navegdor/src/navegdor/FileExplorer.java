@@ -409,7 +409,4 @@ JButton b = new JButton(text);
         statusBar.setText("  " + msg + "   |   Derechos Reservados UNITEC");
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FileExplorer().setVisible(true));
-    }
 }

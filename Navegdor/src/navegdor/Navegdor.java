@@ -4,6 +4,8 @@
  */
 package navegdor;
 
+import javax.swing.SwingUtilities;
+
 /**
  *
  * @author Nathan
@@ -15,6 +17,7 @@ public class Navegdor {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+         SwingUtilities.invokeLater(() -> new FileExplorer().setVisible(true));
     }
     
 }
