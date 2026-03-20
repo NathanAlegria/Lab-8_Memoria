@@ -31,7 +31,7 @@ public class FileExplorer extends JFrame {
     }
 
     private void initUI() {
-        setTitle("JAVA CENTER");
+        setTitle("Explorador");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(900, 600);
         setLocationRelativeTo(null);
