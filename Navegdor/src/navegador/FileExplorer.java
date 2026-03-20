@@ -69,6 +69,15 @@ public class FileExplorer extends JFrame {
         actRow.add(actionBtn("Eliminar",      this::deleteItem));
         actRow.add(new JSeparator(JSeparator.VERTICAL));
         actRow.add(actionBtn("Organizar",     this::organizeFolder));
+        actRow.add(new JSeparator(JSeparator.VERTICAL));
+        JLabel sortLabel = new JLabel("  Ordenar:");
+        sortLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        actRow.add(sortLabel);
+        String[] sorts = {"Nombre", "Fecha", "Tipo", "Tamano"};
+        JComboBox<String> sortBox = new JComboBox<>(sorts);
+        sortBox.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        sortBox.addActionListener(e -> sortBy((String) sortBox.getSelectedItem()));
+        actRow.add(sortBox);
         top.add(actRow, BorderLayout.SOUTH);
         return top;
     }
