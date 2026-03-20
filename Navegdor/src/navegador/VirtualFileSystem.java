@@ -1,4 +1,4 @@
-package navegdor;
+package navegador;
 
 import java.util.Calendar;
 
@@ -13,25 +13,25 @@ public class VirtualFileSystem {
 
     private void buildTree() {
 
-        VirtualNode docs = dir("Documentos", 2022, 3, 1);
-        add(docs, file("tesnica_utadoc.txt", 1024, 2022, 3, 1));
-        add(docs, file("marcos.txt",         1024, 2022, 3, 1));
-        add(docs, file("script.txt",         1024, 2022, 3, 1));
-        add(docs, file("tema.txt",           1024, 2021, 8, 29));
+        VirtualNode docs = dir("Documentos", 2026, 3, 1);
+        add(docs, file("tesnica_utadoc.txt", 1024, 2025, 3, 1));
+        add(docs, file("marcos.txt", 1024, 2026, 3, 1));
+        add(docs, file("script.txt", 1024, 2025, 3, 1));
+        add(docs, file("tema.txt", 1024, 2025, 8, 29));
         root.addChild(docs);
 
-        VirtualNode imgs = dir("Imagenes", 2022, 1, 15);
-        add(imgs, file("foto_perfil.jpg",  204800, 2022, 1, 15));
-        add(imgs, file("campus.png",       512000, 2021, 12, 3));
-        add(imgs, file("logo_unitec.png",   40960, 2021, 11, 20));
-        add(imgs, file("banner.gif",        61440, 2022, 1, 2));
+        VirtualNode imgs = dir("Imagenes", 2026, 1, 15);
+        add(imgs, file("foto_perfil.jpg", 204800, 2025, 1, 15));
+        add(imgs, file("campus.png", 512000, 2025, 12, 3));
+        add(imgs, file("logo_unitec.png", 40960, 2026, 11, 20));
+        add(imgs, file("banner.gif", 61440, 2026, 1, 2));
         root.addChild(imgs);
 
-        VirtualNode music = dir("Musica", 2021, 11, 5);
-        add(music, file("cancion1.mp3", 4194304, 2021, 11, 5));
-        add(music, file("cancion2.mp3", 3670016, 2021, 10, 22));
-        add(music, file("podcast.wav",  8388608, 2021, 9, 14));
-        add(music, file("jingle.ogg",    524288, 2021, 8, 30));
+        VirtualNode music = dir("Musica", 2026, 11, 5);
+        add(music, file("cancion1.mp3", 4194304, 2025, 11, 5));
+        add(music, file("cancion2.mp3", 3670016, 2026, 10, 22));
+        add(music, file("podcast.wav", 8388608, 2024, 9, 14));
+        add(music, file("jingle.ogg", 524288, 2025, 8, 30));
         root.addChild(music);
     }
 
