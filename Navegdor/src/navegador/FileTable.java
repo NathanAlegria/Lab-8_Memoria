@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package navegdor;
+package navegador;
 
 import javax.swing.table.AbstractTableModel;
 import java.text.SimpleDateFormat;
@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author Nathan
  */
-public class FileTableModel extends AbstractTableModel {
+public class FileTable extends AbstractTableModel {
     private static final String[] COLUMNS = {
         "Nombre", "Fecha de modificación", "Tipo", "Tamaño"
     };
