@@ -180,7 +180,6 @@ public class FileExplorer extends JFrame {
     private void navigateByPath(String path) {
         VirtualNode found = vfs.findByPath(path);
         if (found != null) navigateTo(found);
-        else showError("Ruta no encontrada: " + path);
     }
 
     private void openSelected() {
@@ -232,7 +231,7 @@ public class FileExplorer extends JFrame {
         String name = JOptionPane.showInputDialog(this, "Nombre de la nueva carpeta:", "Nueva Carpeta", JOptionPane.PLAIN_MESSAGE);
         if (name == null || name.trim().isEmpty()) return;
         name = name.trim();
-        if (currentNode.hasChild(name)) { showError("Ya existe un elemento con ese nombre."); return; }
+        if (currentNode.hasChild(name)) return;
         VirtualNode newDir = new VirtualNode(name, true, 0, System.currentTimeMillis());
         currentNode.addChild(newDir);
         newDir.setParent(currentNode);
@@ -242,15 +241,13 @@ public class FileExplorer extends JFrame {
 
     private void renameItem() {
         int row = fileTable.getSelectedRow();
-        if (row < 0) { showError("Selecciona un archivo o carpeta."); return; }
+        if (row < 0) return;
         VirtualNode vn = tableModel.getNodeAt(row);
         String newName = (String) JOptionPane.showInputDialog(this, "Nuevo nombre:", "Renombrar",
                 JOptionPane.PLAIN_MESSAGE, null, null, vn.getName());
         if (newName == null || newName.trim().isEmpty()) return;
         newName = newName.trim();
-        if (currentNode.hasChild(newName) && !newName.equals(vn.getName())) {
-            showError("Ya existe un elemento con ese nombre."); return;
-        }
+        if (currentNode.hasChild(newName) && !newName.equals(vn.getName())) return;
         vn.setName(newName);
         vn.setLastModified(System.currentTimeMillis());
         refreshTable();
@@ -259,13 +256,13 @@ public class FileExplorer extends JFrame {
 
     private void copyItems() {
         int[] rows = fileTable.getSelectedRows();
-        if (rows.length == 0) { showError("Selecciona al menos un elemento."); return; }
+        if (rows.length == 0) return;
         clipboard.clear();
         for (int r : rows) clipboard.add(tableModel.getNodeAt(r));
     }
 
     private void pasteItems() {
-        if (clipboard.isEmpty()) { showError("El portapapeles esta vacio."); return; }
+        if (clipboard.isEmpty()) return;
         for (VirtualNode original : clipboard) {
             VirtualNode copy = original.deepCopy();
             String base = copy.getName(), name = base; int cnt = 1;
@@ -280,10 +277,7 @@ public class FileExplorer extends JFrame {
 
     private void deleteItem() {
         int[] rows = fileTable.getSelectedRows();
-        if (rows.length == 0) { showError("Selecciona al menos un elemento."); return; }
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "Eliminar " + rows.length + " elemento(s)?", "Confirmar", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) return;
+        if (rows.length == 0) return;
         for (int i = rows.length - 1; i >= 0; i--) {
             VirtualNode vn = tableModel.getNodeAt(rows[i]);
             currentNode.removeChild(vn);
@@ -299,83 +293,41 @@ public class FileExplorer extends JFrame {
         typeRules.put(".png",  "Imagenes");
         typeRules.put(".gif",  "Imagenes");
         typeRules.put(".bmp",  "Imagenes");
-        typeRules.put(".svg",  "Imagenes");
-        typeRules.put(".webp", "Imagenes");
         typeRules.put(".pdf",  "Documentos");
         typeRules.put(".docx", "Documentos");
         typeRules.put(".doc",  "Documentos");
         typeRules.put(".txt",  "Documentos");
         typeRules.put(".xlsx", "Documentos");
-        typeRules.put(".pptx", "Documentos");
-        typeRules.put(".odt",  "Documentos");
         typeRules.put(".mp3",  "Musica");
         typeRules.put(".wav",  "Musica");
-        typeRules.put(".flac", "Musica");
-        typeRules.put(".aac",  "Musica");
         typeRules.put(".ogg",  "Musica");
-        typeRules.put(".wma",  "Musica");
-        typeRules.put(".mp4",  "Videos");
-        typeRules.put(".avi",  "Videos");
-        typeRules.put(".mkv",  "Videos");
-        typeRules.put(".mov",  "Videos");
-        typeRules.put(".java", "Codigo");
-        typeRules.put(".py",   "Codigo");
-        typeRules.put(".js",   "Codigo");
-        typeRules.put(".html", "Codigo");
-        typeRules.put(".css",  "Codigo");
 
         java.util.List<VirtualNode> files = new ArrayList<>();
         for (VirtualNode child : new ArrayList<>(currentNode.getChildren())) {
             if (!child.isDirectory()) files.add(child);
         }
 
-        String currentName = currentNode.getName().toLowerCase();
-        boolean alreadyInTypeFolder = currentName.equals("imagenes") ||
-                                      currentName.equals("documentos") ||
-                                      currentName.equals("musica") ||
-                                      currentName.equals("videos") ||
-                                      currentName.equals("codigo");
+        VirtualNode searchRoot = (currentNode.getParent() != null) ? currentNode.getParent() : currentNode;
 
-        int moved = 0;
         for (VirtualNode file : files) {
             String ext = getExtension(file.getName()).toLowerCase();
-            String parentFolderName = typeRules.get(ext);
-            if (parentFolderName == null) continue;
+            String destFolderName = typeRules.get(ext);
+            if (destFolderName == null) continue;
 
-            String subFolderName = ext.substring(1).toLowerCase();
-
-            VirtualNode destFolder;
-            if (alreadyInTypeFolder) {
-                destFolder = currentNode.getChildDir(subFolderName);
-                if (destFolder == null) {
-                    destFolder = new VirtualNode(subFolderName, true, 0, System.currentTimeMillis());
-                    destFolder.setParent(currentNode);
-                    currentNode.addChild(destFolder);
-                }
-            } else {
-                VirtualNode parentFolder = currentNode.getChildDir(parentFolderName);
-                if (parentFolder == null) {
-                    parentFolder = new VirtualNode(parentFolderName, true, 0, System.currentTimeMillis());
-                    parentFolder.setParent(currentNode);
-                    currentNode.addChild(parentFolder);
-                }
-                destFolder = parentFolder.getChildDir(subFolderName);
-                if (destFolder == null) {
-                    destFolder = new VirtualNode(subFolderName, true, 0, System.currentTimeMillis());
-                    destFolder.setParent(parentFolder);
-                    parentFolder.addChild(destFolder);
-                }
+            VirtualNode destFolder = searchRoot.getChildDir(destFolderName);
+            if (destFolder == null) {
+                destFolder = new VirtualNode(destFolderName, true, 0, System.currentTimeMillis());
+                destFolder.setParent(searchRoot);
+                searchRoot.addChild(destFolder);
             }
 
             currentNode.removeChild(file);
             file.setParent(destFolder);
             destFolder.addChild(file);
-            moved++;
         }
 
         refreshTable();
         syncTree(currentNode);
-        JOptionPane.showMessageDialog(this, moved + " archivo(s) organizados.", "Organizar", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void sortBy(String criterion) {
@@ -392,15 +344,15 @@ public class FileExplorer extends JFrame {
     }
 
     private String getExtension(String name) {
+        int parenIdx = name.lastIndexOf(" (");
+        if (parenIdx > 0 && name.endsWith(")")) {
+            name = name.substring(0, parenIdx);
+        }
         int i = name.lastIndexOf('.');
         return (i >= 0) ? name.substring(i) : "";
     }
 
     private void showError(String msg) {
         JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FileExplorer().setVisible(true));
     }
 }
