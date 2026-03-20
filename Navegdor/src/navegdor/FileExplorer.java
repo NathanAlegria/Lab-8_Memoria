@@ -16,13 +16,9 @@ public class FileExplorer extends JFrame {
     private DefaultTreeModel treeModel;
     private JTable fileTable;
     private FileTableModel tableModel;
-    private JLabel statusBar;
     private JTextField pathField;
-    private JButton btnBack, btnForward;
 
     private VirtualNode currentNode;
-    private Stack<VirtualNode> backStack  = new Stack<>();
-    private Stack<VirtualNode> fwdStack   = new Stack<>();
 
     private java.util.List<VirtualNode> clipboard = new ArrayList<>();
 
@@ -48,57 +44,34 @@ public class FileExplorer extends JFrame {
         split.setDividerLocation(220);
         split.setDividerSize(4);
         add(split, BorderLayout.CENTER);
-        statusBar = new JLabel("  Derechos Reservados UNITEC");
-        statusBar.setBorder(BorderFactory.createEtchedBorder());
-        statusBar.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        add(statusBar, BorderLayout.SOUTH);
     }
 
     private JPanel buildToolbar() {
         JPanel top = new JPanel(new BorderLayout());
         top.setBackground(new Color(180, 200, 230));
         top.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(140, 160, 190)));
+
         JPanel navRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 4));
         navRow.setOpaque(false);
-        btnBack    = navBtn("<", () -> goBack());
-        btnForward = navBtn(">", () -> goForward());
-        navRow.add(btnBack);
-        navRow.add(btnForward);
         pathField = new JTextField(40);
         pathField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         pathField.addActionListener(e -> navigateByPath(pathField.getText()));
-        navRow.add(new JLabel("  "));
         navRow.add(pathField);
         top.add(navRow, BorderLayout.NORTH);
+
         JPanel actRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
         actRow.setOpaque(false);
         actRow.add(actionBtn("Nueva Carpeta", this::createFolder));
-        actRow.add(actionBtn("Renombrar",      this::renameItem));
-        actRow.add(actionBtn("Copiar",         this::copyItems));
-        actRow.add(actionBtn("Pegar",          this::pasteItems));
-        actRow.add(actionBtn("Eliminar",        this::deleteItem));
+        actRow.add(actionBtn("Renombrar",     this::renameItem));
+        actRow.add(actionBtn("Copiar",        this::copyItems));
+        actRow.add(actionBtn("Pegar",         this::pasteItems));
+        actRow.add(actionBtn("Eliminar",      this::deleteItem));
         actRow.add(new JSeparator(JSeparator.VERTICAL));
-        actRow.add(actionBtn("Organizar",       this::organizeFolder));
-        JLabel sortLabel = new JLabel("  Ordenar:");
-        sortLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        actRow.add(sortLabel);
-        String[] sorts = {"Nombre", "Fecha", "Tipo", "Tamaño"};
-        JComboBox<String> sortBox = new JComboBox<>(sorts);
-        sortBox.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        sortBox.addActionListener(e -> sortBy((String) sortBox.getSelectedItem()));
-        actRow.add(sortBox);
+        actRow.add(actionBtn("Organizar",     this::organizeFolder));
         top.add(actRow, BorderLayout.SOUTH);
         return top;
     }
-    
-    private JButton navBtn(String text, Runnable action) {
-JButton b = new JButton(text);
-       b.setFont(new Font("Segoe UI", Font.BOLD, 13));
-       b.setPreferredSize(new Dimension(50, 28));  // cambia 34 por 50
-       b.setFocusPainted(false);
-       b.addActionListener(e -> action.run());
-    return b;
-}
+
     private JButton actionBtn(String text, Runnable action) {
         JButton b = new JButton(text);
         b.setFont(new Font("Segoe UI", Font.PLAIN, 11));
@@ -167,13 +140,13 @@ JButton b = new JButton(text);
             }
         });
         JPopupMenu popup = new JPopupMenu();
-        addMenuItem(popup, "Nueva Carpeta",  this::createFolder);
-        addMenuItem(popup, "Renombrar",       this::renameItem);
-        addMenuItem(popup, "Copiar",          this::copyItems);
-        addMenuItem(popup, "Pegar",           this::pasteItems);
-        addMenuItem(popup, "Eliminar",         this::deleteItem);
+        addMenuItem(popup, "Nueva Carpeta", this::createFolder);
+        addMenuItem(popup, "Renombrar",     this::renameItem);
+        addMenuItem(popup, "Copiar",        this::copyItems);
+        addMenuItem(popup, "Pegar",         this::pasteItems);
+        addMenuItem(popup, "Eliminar",      this::deleteItem);
         popup.addSeparator();
-        addMenuItem(popup, "Organizar",        this::organizeFolder);
+        addMenuItem(popup, "Organizar",     this::organizeFolder);
         fileTable.setComponentPopupMenu(popup);
         JScrollPane sp = new JScrollPane(fileTable);
         sp.setBorder(BorderFactory.createEmptyBorder());
@@ -188,40 +161,10 @@ JButton b = new JButton(text);
     }
 
     private void navigateTo(VirtualNode node) {
-        if (currentNode != null && currentNode != node) {
-            backStack.push(currentNode);
-            fwdStack.clear();
-        }
         currentNode = node;
         refreshTable();
         refreshPath();
         syncTree(node);
-        btnBack.setEnabled(!backStack.isEmpty());
-        btnForward.setEnabled(!fwdStack.isEmpty());
-    }
-
-    private void goBack() {
-        if (!backStack.isEmpty()) {
-            fwdStack.push(currentNode);
-            currentNode = backStack.pop();
-            refreshTable();
-            refreshPath();
-            syncTree(currentNode);
-            btnBack.setEnabled(!backStack.isEmpty());
-            btnForward.setEnabled(!fwdStack.isEmpty());
-        }
-    }
-
-    private void goForward() {
-        if (!fwdStack.isEmpty()) {
-            backStack.push(currentNode);
-            currentNode = fwdStack.pop();
-            refreshTable();
-            refreshPath();
-            syncTree(currentNode);
-            btnBack.setEnabled(!backStack.isEmpty());
-            btnForward.setEnabled(!fwdStack.isEmpty());
-        }
     }
 
     private void navigateByPath(String path) {
@@ -239,7 +182,6 @@ JButton b = new JButton(text);
 
     private void refreshTable() {
         tableModel.setNodes(currentNode.getChildren());
-        statusBar.setText("  " + currentNode.getChildren().size() + " elemento(s)   |   Derechos Reservados UNITEC");
     }
 
     private void refreshPath() {
@@ -286,7 +228,6 @@ JButton b = new JButton(text);
         newDir.setParent(currentNode);
         refreshTable();
         syncTree(currentNode);
-        status("Carpeta '" + name + "' creada.");
     }
 
     private void renameItem() {
@@ -304,7 +245,6 @@ JButton b = new JButton(text);
         vn.setLastModified(System.currentTimeMillis());
         refreshTable();
         syncTree(currentNode);
-        status("Renombrado a '" + newName + "'.");
     }
 
     private void copyItems() {
@@ -312,11 +252,10 @@ JButton b = new JButton(text);
         if (rows.length == 0) { showError("Selecciona al menos un elemento."); return; }
         clipboard.clear();
         for (int r : rows) clipboard.add(tableModel.getNodeAt(r));
-        status(clipboard.size() + " elemento(s) copiado(s) al portapapeles.");
     }
 
     private void pasteItems() {
-        if (clipboard.isEmpty()) { showError("El portapapeles está vacío."); return; }
+        if (clipboard.isEmpty()) { showError("El portapapeles esta vacio."); return; }
         for (VirtualNode original : clipboard) {
             VirtualNode copy = original.deepCopy();
             String base = copy.getName(), name = base; int cnt = 1;
@@ -327,14 +266,13 @@ JButton b = new JButton(text);
         }
         refreshTable();
         syncTree(currentNode);
-        status(clipboard.size() + " elemento(s) pegado(s).");
     }
 
     private void deleteItem() {
         int[] rows = fileTable.getSelectedRows();
         if (rows.length == 0) { showError("Selecciona al menos un elemento."); return; }
         int confirm = JOptionPane.showConfirmDialog(this,
-                "¿Eliminar " + rows.length + " elemento(s)?", "Confirmar", JOptionPane.YES_NO_OPTION);
+                "Eliminar " + rows.length + " elemento(s)?", "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm != JOptionPane.YES_OPTION) return;
         for (int i = rows.length - 1; i >= 0; i--) {
             VirtualNode vn = tableModel.getNodeAt(rows[i]);
@@ -342,7 +280,6 @@ JButton b = new JButton(text);
         }
         refreshTable();
         syncTree(currentNode);
-        status(rows.length + " elemento(s) eliminado(s).");
     }
 
     private void organizeFolder() {
@@ -379,7 +316,7 @@ JButton b = new JButton(text);
         }
         refreshTable();
         syncTree(currentNode);
-        status("Organización completa. " + moved + " archivo(s) movido(s).");
+        JOptionPane.showMessageDialog(this, moved + " archivo(s) organizados.", "Organizar", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void sortBy(String criterion) {
@@ -389,11 +326,10 @@ JButton b = new JButton(text);
             case "Nombre" -> list.mergeSort(Comparator.comparing(VirtualNode::getName, String.CASE_INSENSITIVE_ORDER));
             case "Fecha"  -> list.mergeSort(Comparator.comparingLong(VirtualNode::getLastModified).reversed());
             case "Tipo"   -> list.mergeSort(Comparator.comparing(vn -> vn.isDirectory() ? "0" : getExtension(vn.getName())));
-            case "Tamaño" -> list.mergeSort(Comparator.comparingLong(VirtualNode::getSize).reversed());
+            case "Tamano" -> list.mergeSort(Comparator.comparingLong(VirtualNode::getSize).reversed());
         }
         currentNode.setChildren(list.toList());
         refreshTable();
-        status("Ordenado por " + criterion + ".");
     }
 
     private String getExtension(String name) {
@@ -405,8 +341,7 @@ JButton b = new JButton(text);
         JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    private void status(String msg) {
-        statusBar.setText("  " + msg + "   |   Derechos Reservados UNITEC");
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new FileExplorer().setVisible(true));
     }
-
 }
