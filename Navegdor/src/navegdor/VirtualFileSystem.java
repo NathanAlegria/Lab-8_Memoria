@@ -115,4 +115,50 @@ public class VirtualFileSystem {
         root.addChild(consola);
 
     }
+
+    public VirtualNode getRoot() {
+        return root;
+    }
+
+    public String getPath(VirtualNode node) {
+        if (node == null) {
+            return "";
+        }
+        if (node.getParent() == null) {
+            return node.getName() + "'documentos";
+        }
+        StringBuilder sb = new StringBuilder();
+        buildPath(node, sb);
+        return sb.toString();
+    }
+
+    private void buildPath(VirtualNode node, StringBuilder sb) {
+        if (node.getParent() == null) {
+            sb.append(node.getName()).append("'documentos");
+            return;
+        }
+        buildPath(node.getParent(), sb);
+        sb.append(" ▶ ").append(node.getName());
+    }
+
+    public VirtualNode findByPath(String path) {
+
+        String[] parts = path.split("▶");
+        VirtualNode current = root;
+        for (int i = 1; i < parts.length; i++) {
+            String seg = parts[i].trim();
+            boolean found = false;
+            for (VirtualNode child : current.getChildren()) {
+                if (child.getName().equalsIgnoreCase(seg)) {
+                    current = child;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return null;
+            }
+        }
+        return current;
+    }
 }
