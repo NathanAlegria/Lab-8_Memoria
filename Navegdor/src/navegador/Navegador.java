@@ -10,7 +10,7 @@ import javax.swing.SwingUtilities;
  *
  * @author Nathan
  */
-public class Navegdor {
+public class Navegador {
 
     /**
      * @param args the command line arguments
@@ -21,3 +21,4 @@ public class Navegdor {
     }
     
 }
+ 
