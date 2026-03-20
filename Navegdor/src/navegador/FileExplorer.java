@@ -7,7 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
-import navegdor.FileTableModel;
+import navegador.FileTable;
 
 public class FileExplorer extends JFrame {
 
@@ -16,7 +16,7 @@ public class FileExplorer extends JFrame {
     private JTree fileTree;
     private DefaultTreeModel treeModel;
     private JTable fileTable;
-    private FileTableModel tableModel;
+    private FileTable tableModel;
     private JTextField pathField;
 
     private VirtualNode currentNode;
@@ -32,7 +32,7 @@ public class FileExplorer extends JFrame {
     }
 
     private void initUI() {
-        setTitle("JAVA CENTER");
+        setTitle("Explorador");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(900, 600);
         setLocationRelativeTo(null);
@@ -123,7 +123,7 @@ public class FileExplorer extends JFrame {
     }
 
     private JScrollPane buildTablePanel() {
-        tableModel = new FileTableModel();
+        tableModel = new FileTable();
         fileTable  = new JTable(tableModel);
         fileTable.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         fileTable.setRowHeight(22);
@@ -370,7 +370,7 @@ public class FileExplorer extends JFrame {
     }
 
     private void sortBy(String criterion) {
-        LinkedFileList list = new LinkedFileList();
+        FileList list = new FileList();
         for (VirtualNode vn : currentNode.getChildren()) list.add(vn);
         switch (criterion) {
             case "Nombre" -> list.mergeSort(Comparator.comparing(VirtualNode::getName, String.CASE_INSENSITIVE_ORDER));
